@@ -20,7 +20,7 @@ QEMU with our universal VirtIO device is built as follows:
     tar xvJf qemu.tar.xz
     mv qemu-8.2.2 qemu
     cd qemu
-    patch -p1 < /../VirtFuzz/qemu-patch.patch
+    patch -p1 < ../VirtFuzz/qemu-patch.patch
     mkdir build
     cd build
     ../configure --target-list=x86_64-softmmu
@@ -69,11 +69,14 @@ For example, to fuzz the WLAN stack compiled in the requirements, run the follow
     export IMAGE=./guestimage/stretch.img
     export KERNEL=../linux/arch/x86/boot/bzImage
     cargo build --release
-    sudo -E ./target/release/virtfuzz-fuzz -- --device-definition device-definitions/hwsim-scan.json --cores 0-1 --stages standard
+    mkdir -p /dev/shm/virtfuzz-cache
+    sudo -E ./target/release/virtfuzz-fuzz --cache /dev/shm/virtfuzz-cache --device-definition device-definitions/hwsim-scan.json --stages standard
 
 Now, the fuzzer runs two instances on the 802.11 stack through the mac802.11_hwsim driver.
 
 Run `cargo run --release --package virtfuzz-fuzz -- --help` to see all available options.
+
+
 
 #### Fuzzing Options
 During the development, several options to support fuzzing where introduced. We'll explain selected ones here in the following:
