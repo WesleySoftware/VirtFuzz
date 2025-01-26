@@ -20,7 +20,7 @@ QEMU with our universal VirtIO device is built as follows:
     tar xvJf qemu.tar.xz
     mv qemu-8.2.2 qemu
     cd qemu
-    patch -p1 < $SCRIPT_DIR/../qemu-patch.patch
+    patch -p1 < /../VirtFuzz/qemu-patch.patch
     mkdir build
     cd build
     ../configure --target-list=x86_64-softmmu
@@ -30,7 +30,7 @@ QEMU with our universal VirtIO device is built as follows:
 This script is adopted from [Syzkaller](https://github.com/google/syzkaller/blob/master/tools/create-image.sh). To generate a guestimage for the VM, run the following:
 
     cd guestimage
-    ./create-image.sh -d stretch
+    ./guestimage/create-image.sh -d buster
     
 ### Patched Kernel
 Finally, VirtFuzz requires a patched kernel. Therefore, pull a kernel version and apply our patches.
@@ -39,17 +39,17 @@ For example:
     git clone git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git
     cd linux
     git checkout v6.0
-    ../virtfuzz/kernel-patches/apply.sh
+    ../VirtFuzz/kernel-patches/apply.sh
     # Depending on the target, apply the patches to annotate for a specific device
-    ../virtfuzz/kernel-patches/annotate-80211.sh
+    ../VirtFuzz/kernel-patches/annotate-80211.sh
     
     # Make the config
     make x86_64_defconfig
     make kvm_guest.config
-    scripts/kconfig/merge_config.sh -m .config ../virtfuzz/kernel-config/base.config
+    scripts/kconfig/merge_config.sh -m .config ../VirtFuzz/kernel-config/base.config
     
     # For example enable KASAN
-    scripts/kconfig/merge_config.sh -m .config ../virtfuzz/kernel-config/kasan.config
+    scripts/kconfig/merge_config.sh -m .config ../VirtFuzz/kernel-config/kasan.config
     make olddefconfig
     make -j$(nproc)
 
@@ -62,12 +62,14 @@ The following programs exist:
 
 ### Fuzzer
 See `cargo run --release --bin virtfuzz-fuzz` for all options.
+NOTE: libpcap is required to build the fuzzer
 For example, to fuzz the WLAN stack compiled in the requirements, run the following:
 
-    export QEMU=PATH_TO-qemu-system-x86_64
-    export IMAGE=guestimage/stretch.img
-    export KERNEL=PATH_TO/linux/arch/x86/boot/bzImage
-    cargo run --release --package virtfuzz-fuzz -- --device-definition device-definitions/hwsim-scan.json --cores 0-1 --stages standard
+    export QEMU=../qemu/build/qemu-system-x86_64
+    export IMAGE=./guestimage/stretch.img
+    export KERNEL=../linux/arch/x86/boot/bzImage
+    cargo build --release
+    sudo -E ./target/release/virtfuzz-fuzz -- --device-definition device-definitions/hwsim-scan.json --cores 0-1 --stages standard
 
 Now, the fuzzer runs two instances on the 802.11 stack through the mac802.11_hwsim driver.
 
