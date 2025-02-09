@@ -68,7 +68,7 @@ For example, to fuzz the WLAN stack compiled in the requirements, run the follow
     export QEMU=../qemu/build/qemu-system-x86_64
     export IMAGE=./guestimage/stretch.img
     export KERNEL=../linux/arch/x86/boot/bzImage
-    cargo build --release
+    cargo build --release --workspace
     mkdir -p /dev/shm/virtfuzz-cache
     sudo -E ./target/release/virtfuzz-fuzz --cache /dev/shm/virtfuzz-cache --device-definition device-definitions/hwsim-scan.json --stages standard
 
