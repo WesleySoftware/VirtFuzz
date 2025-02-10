@@ -66,7 +66,7 @@ NOTE: libpcap is required to build the fuzzer
 For example, to fuzz the WLAN stack compiled in the requirements, run the following:
 
     export QEMU=../qemu/build/qemu-system-x86_64
-    export IMAGE=./guestimage/stretch.img
+    export IMAGE=./guestimage/buster.img
     export KERNEL=../linux/arch/x86/boot/bzImage
     cargo build --release --workspace
     mkdir -p /dev/shm/virtfuzz-cache
